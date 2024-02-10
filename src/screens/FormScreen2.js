@@ -231,6 +231,7 @@ function FormScreen2({ navigation, route }) {
     }
   };
 
+
   const reverseGeocode = async (latitude, longitude) => {
     try {
       let addressResponse = await Location.reverseGeocodeAsync({ latitude, longitude });
@@ -239,7 +240,7 @@ function FormScreen2({ navigation, route }) {
         const { name, street, region, city, postalCode, country } = addressResponse[0];
   
         // Build the formatted address
-        const formattedAddress = `${name || ""} ${street || ""}, ${region || ""}, ${city || ""}, ${postalCode || ""}, ${country || ""}`;
+        const formattedAddress = `${name || ""} ${street || ""} ${city || ""}, ${region || ""}, ${country || ""}, ${postalCode || ""}`;
 
         const newPin = {
           coordinate: { latitude, longitude },

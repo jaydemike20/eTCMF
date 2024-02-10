@@ -34,6 +34,155 @@ import { setdriverID } from "./camera/infoSliceCOR";
 import ImagePicker from 'react-native-image-crop-picker';
 import Scanning from "./Scanning";
 
+// const rearrangeAddress = (address) => {
+//   let rearrangedAddress = address;
+
+//   // Condition 1: PUROK
+//   if (address.includes("PUROK")) {
+//     const regex = /PUROK (\D+) (\S+)/;
+//     const match = address.match(regex);
+//     if (match) {
+//       rearrangedAddress = `PUROK ${match[2]} ${match[1]}`;
+//     }
+//   }
+
+//   // Condition 2: STREET
+//   else if (address.includes("STREET")) {
+//     const regex = /(.+?) STREET(?:, (.+))? (\d+)/;
+//     const match = address.match(regex);
+//     if (match) {
+//       const streetDetails = match[2] ? `, ${match[2]}` : "";
+//       rearrangedAddress = `${match[3]} ${match[1]} STREET${streetDetails}`;
+//     }
+//   }
+
+
+
+
+//   // Condition 3: ZONE
+//   else if (address.includes("ZONE")) {
+//     const regex = /ZONE (\d+) (.+)/;
+//     const match = address.match(regex);
+//     if (match) {
+//       rearrangedAddress = `ZONE ${match[1]} ${match[2]}`;
+//     }
+//   }
+
+//   // Condition 4: PHASE
+//   else if (address.includes("PHASE")) {
+//     const regex = /PHASE (\d+) (.+)/;
+//     const match = address.match(regex);
+//     if (match) {
+//       rearrangedAddress = `PHASE ${match[1]} ${match[2]}`;
+//     }
+//   }
+
+//   // Condition 5: BARANGAY or BRGY
+//   else if (address.includes("BARANGAY") || address.includes("BRGY")) {
+//     const regex = /(BARANGAY|BRGY) (\d*) (.+)/;
+//     const match = address.match(regex);
+//     if (match) {
+//       rearrangedAddress = `${match[1]} ${match[2]} ${match[3]}`;
+//     }
+//   }
+
+//   console.log("Original Address:", address);
+//   console.log("Rearranged Address:", rearrangedAddress);
+
+//   return rearrangedAddress;
+// };
+
+// const originalAddress =
+//   "PUROK HILLSIDE GUSA CAGAYAN DE ORO CITY MISAMIS ORIENTAL 4A";
+// const rearranged = rearrangeAddress(originalAddress);
+// console.log(rearranged);
+
+const rearrangeAddress = (address) => {
+  let rearrangedAddress = address;
+
+  // Condition 1: PUROK
+  if (address.includes("PUROK")) {
+    const regex = /PUROK (\D+) (\S+)/;
+    const match = address.match(regex);
+    if (match) {
+      rearrangedAddress = `PUROK ${match[2]} ${match[1]}`;
+    }
+  }
+
+  // Condition 2: STREET
+  else if (address.includes("STREET")) {
+    // Check if the address contains a house number
+    const regexHouseNumber = /\d+/;
+    const hasHouseNumber = regexHouseNumber.test(address);
+
+    if (hasHouseNumber) {
+      const regexHouseNumberAtEnd = /(.*) (\d+)$/;
+      const matchHouseNumberAtEnd = address.match(regexHouseNumberAtEnd);
+
+      // Check if the address matches the expected format with house number at the end
+      if (matchHouseNumberAtEnd) {
+        // Construct the rearranged address with house number at the beginning
+        rearrangedAddress = `${matchHouseNumberAtEnd[2]} ${matchHouseNumberAtEnd[1]}`;
+      }
+    } else {
+      // Assume street name is at the beginning
+      const regexHouseNumberAtStart = /(\d+) (.*)/;
+      const matchHouseNumberAtStart = address.match(regexHouseNumberAtStart);
+
+      if (matchHouseNumberAtStart) {
+        // Construct the rearranged address with house number at the end
+        rearrangedAddress = `${matchHouseNumberAtStart[2]}, ${matchHouseNumberAtStart[1]}`;
+      }
+    }
+  }
+
+  // Condition 3: ZONE
+  else if (address.includes("ZONE")) {
+    const regex = /ZONE (\D+) (\S+)/;
+    const match = address.match(regex);
+    if (match) {
+      rearrangedAddress = `ZONE ${match[2]} ${match[1]}`;
+    }
+  }
+
+  // Condition 4: PHASE
+  else if (address.includes("PHASE")) {
+    const regex = /PHASE (\d+) (.+)/;
+    const match = address.match(regex);
+    if (match) {
+      rearrangedAddress = `PHASE ${match[1]} ${match[2]}`;
+    }
+  }
+
+  // Condition 5: BARANGAY or BRGY
+  else if (address.includes("BARANGAY")) {
+    const regexBarangayNumber = /BARANGAY (\d+) (.+)/;
+    const matchBarangayNumber = address.match(regexBarangayNumber);
+    if (matchBarangayNumber) {
+      rearrangedAddress = `${matchBarangayNumber[1]} ${matchBarangayNumber[2]} BARANGAY`;
+    } else {
+      const regexBarangay = /BARANGAY (\D+) (\S+)/;
+      const matchBarangay = address.match(regexBarangay);
+      if (matchBarangay) {
+        rearrangedAddress =`BARANGAY ${matchBarangay[2]} ${matchBarangay[1]}`;
+      }
+    }
+  }
+
+  console.log("Original Address:", address);
+  console.log("Rearranged Address:", rearrangedAddress);
+
+  return rearrangedAddress;
+};
+
+// Example usage:
+const originalAddress =
+  "STREET, CAGAYAN DE ORO CITY, MISAMIS ORIENTAL, PHILIPPINES 654";
+const rearranged = rearrangeAddress(originalAddress);
+
+console.log(rearranged);
+
+
 export default function CameraScan() {
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const [cameraRef, setCameraRef] = useState(null);
@@ -146,6 +295,181 @@ export default function CameraScan() {
   };
 
   // ocr
+  // const handleNextButton = async () => {
+  //   try {
+  //     setScanning(true)
+  //     if (!capturedImage) {
+  //       Alert.alert("Please take a picture first.");
+  //       return;
+  //     }
+
+  //     const apiKey = "5f9a18dcb66e4eca17af461b4b619bc9";
+  //     const apiUrl =
+  //       "https://api.mindee.net/v1/products/SPrincessGenevieve/gems/v1/predict";
+
+  //     const formData = new FormData();
+  //     formData.append("document", {
+  //       uri: capturedImage,
+  //       name: "image.jpg",
+  //       type: "image/jpeg",
+  //     });
+
+  //     const response = await axios.post(apiUrl, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //         Authorization: `Token ${apiKey}`,
+  //       },
+  //     });
+
+  //     if (response?.data?.document !== undefined) {
+  //       const extractedData =
+  //         response.data.document.inference.pages[0].prediction;
+
+  //       const concatenatedFields = {
+  //         type: "",
+  //         address: "",
+  //         agency_code: "",
+  //         blood_type: "",
+  //         conditions: "",
+  //         date_of_birth: "",
+  //         dl_codes: "",
+  //         expiration_date: "",
+  //         last_name_first_name_middle_name: "",
+  //         height: "",
+  //         license_no: "",
+  //         nationality: "",
+  //         sex: "",
+  //         weight: "",
+  //         restrictions: "",
+  //       };
+
+  //       for (const fieldName in concatenatedFields) {
+  //         if (extractedData[fieldName]?.values) {
+  //           let concatenatedValue = "";
+  //           for (const value of extractedData[fieldName]?.values || []) {
+  //             concatenatedValue += value.content + " ";
+  //           }
+  //           concatenatedFields[fieldName] = concatenatedValue.trim();
+  //         }
+  //       }
+
+  //       // validation
+  //       // if (concatenatedFields.license_no.length !== 13) {
+  //       //   Alert.alert("License number must have 13 characters.");
+  //       //   return;
+  //       // }
+
+  //       setData({
+  //         ...data,
+  //         ...concatenatedFields,
+  //       });
+
+  //       dispatch(
+  //         setRecognizedText({
+  //           type: concatenatedFields.type,
+  //           name: concatenatedFields.last_name_first_name_middle_name,
+  //           licenseNumber: concatenatedFields.license_no,
+  //           dateOfBirth: concatenatedFields.date_of_birth,
+  //           nationality: concatenatedFields.nationality,
+  //           sex: concatenatedFields.sex,
+  //           address: concatenatedFields.address,
+  //         })
+  //       );
+
+  //       // check if the driver is exist
+  //       const driverExists = drivers.find(
+  //         (driver) => driver.license_number === concatenatedFields.license_no
+  //       );
+
+  //       if (driverExists) {
+  //         alert(`Existing Driver: ${concatenatedFields.license_no}`);
+
+  //         const driverId = driverExists.id;
+  //         const classificationString = driverExists.classification.toString();
+  //         dispatch(setDriverRegisterd());
+  //         dispatch(setDriverID(driverId));
+
+  //         // for editing soon
+  //         dispatch(
+  //           setGetFinalDriver({
+  //             ...driverExists,
+  //             license_number: driverExists.license_number,  
+  //             first_name: driverExists.first_name,
+  //             middle_initial: driverExists.middle_initial,
+  //             last_name: driverExists.last_name,
+  //             address: driverExists.address,
+  //             birthdate: driverExists.birthdate,
+  //             nationality: driverExists.nationality,
+  //             classification: classificationString,
+  //           })
+  //         );
+  //         // vehicle slice
+  //         dispatch(setdriverID(driverId));
+  //         // if there is changes
+
+  //         // clear setData
+  //         setData({
+  //           type: "",
+  //           first_name: "",
+  //           last_name: "",
+  //           middle_name: "",
+  //           nationality: "",
+  //           sex: "",
+  //           date_of_birth: "",
+  //           weight: "",
+  //           height: "",
+  //           address: "",
+  //           license_no: "",
+  //           expiration_date: "",
+  //           dl_codes: "",
+  //           conditions: "",
+  //           agency_code: "",
+  //           restrictions: "",
+  //         });
+  //         navigation.navigate("IntroOCR");
+  //         setScanning(false)
+
+  //       } else {
+  //         setScanning(false)
+  //         console.log(`Driver not found: ${concatenatedFields.license_no}`);
+  //         alert(`New Driver: ${concatenatedFields.license_no}`);
+  //         dispatch(setFinalDriver());
+
+  //         // clear setData
+  //         setData({
+  //           type: "",
+  //           first_name: "",
+  //           last_name: "",
+  //           middle_name: "",
+  //           nationality: "",
+  //           sex: "",
+  //           date_of_birth: "",
+  //           weight: "",
+  //           height: "",
+  //           address: "",
+  //           license_no: "",
+  //           expiration_date: "",
+  //           dl_codes: "",
+  //           conditions: "",
+  //           agency_code: "",
+  //           restrictions: "",
+  //         });
+  //         navigation.navigate("IntroOCR");
+  //       }
+  //     } else {
+  //       Alert.alert("Text extraction failed. Please try again later.");
+  //       setScanning(false)
+
+  //     }
+  //   } catch (error) {
+  //     console.log("Error extracting text:", error);
+  //     Alert.alert("Error extracting text. Please try again later.");
+  //     setScanning(false)
+
+  //   }
+  // };
+
+
   const handleNextButton = async () => {
     try {
       setScanning(true)
@@ -204,16 +528,19 @@ export default function CameraScan() {
           }
         }
 
-        // validation
-        // if (concatenatedFields.license_no.length !== 13) {
-        //   Alert.alert("License number must have 13 characters.");
-        //   return;
-        // }
+        if (concatenatedFields.address) {
+          concatenatedFields.address = rearrangeAddress(
+            concatenatedFields.address
+          );
+        }
 
         setData({
           ...data,
           ...concatenatedFields,
         });
+
+        Alert.alert("Rearranged Address", concatenatedFields.address);
+
 
         dispatch(
           setRecognizedText({
@@ -319,6 +646,7 @@ export default function CameraScan() {
 
     }
   };
+
 
   // useEffect(() => {
   //   console.log("Updated Data:", data);

@@ -240,7 +240,7 @@ function FormScreen({ navigation, route }) {
         const { name, street, region, city, postalCode, country } = addressResponse[0];
   
         // Build the formatted address
-        const formattedAddress = `${name || ""} ${street || ""}, ${region || ""}, ${city || ""}, ${postalCode || ""}, ${country || ""}`;
+        const formattedAddress = `${name || ""} ${street || ""} ${city || ""}, ${region || ""}, ${country || ""}, ${postalCode || ""}`;
 
         const newPin = {
           coordinate: { latitude, longitude },
