@@ -285,16 +285,21 @@ function FormScreen2({ navigation, route }) {
 
   
   useEffect(() => {
+    getLocation();
+
+
     if (location) {
       getAddressFromCoordinates(location)
         .then((currentAddress) => {
           setCurrentAddress(currentAddress);
+          setSelectedPin(currentAddress)
         })
         .catch((error) => {
           console.error('Error getting address from coordinates:', error);
         });
     }
   }, [location]);
+
 
   useEffect(() => {
     setIsAtLeastOneChecked(checkedViolations.length > 0);
@@ -1559,19 +1564,6 @@ function FormScreen2({ navigation, route }) {
                         marginTop={25}
                         required
                       ></ConstInput>
-                      <View style={{ marginTop: 30 }}>
-                        <View style={{ height: 400 }}>
-                          <MapLocation
-                            location={location}
-                            selectedPin={selectedPin}
-                            currentAddress={currentAddress}
-                            handleMapPress={handleMapPress}
-                            getLocation={getLocation}
-                            setShowMap={setShowMap}
-                            form={form}
-                            setForm={setForm}
-                          ></MapLocation>
-                        </View>
                         <ConstInput
                           editable={locationObtained}
                           borderRadius={10}
@@ -1590,7 +1582,6 @@ function FormScreen2({ navigation, route }) {
                           }}
                           multiline={true}
                         ></ConstInput>
-                      </View>
                     </View>
                   </View>
                 </View>

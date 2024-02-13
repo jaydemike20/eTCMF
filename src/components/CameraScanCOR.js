@@ -33,91 +33,6 @@ import { setGetFinalDriver } from "./camera/infoSlice";
 import { ImageManipulator as ExpoImageManipulator } from "expo-image-crop";
 import Scanning from "./Scanning";
 
-const rearrangeAddress = (address) => {
-  let rearrangedAddress = address;
-
-  // Condition 1: PUROK
-  if (address.includes("PUROK")) {
-    const regex = /PUROK (\D+) (\S+)/;
-    const match = address.match(regex);
-    if (match) {
-      rearrangedAddress = `PUROK ${match[2]} ${match[1]}`;
-    }
-  }
-
-  // Condition 2: STREET
-  else if (address.includes("STREET")) {
-    // Check if the address contains a house number
-    const regexHouseNumber = /\d+/;
-    const hasHouseNumber = regexHouseNumber.test(address);
-
-    if (hasHouseNumber) {
-      const regexHouseNumberAtEnd = /(.*) (\d+)$/;
-      const matchHouseNumberAtEnd = address.match(regexHouseNumberAtEnd);
-
-      // Check if the address matches the expected format with house number at the end
-      if (matchHouseNumberAtEnd) {
-        // Construct the rearranged address with house number at the beginning
-        rearrangedAddress = `${matchHouseNumberAtEnd[2]} ${matchHouseNumberAtEnd[1]}`;
-      }
-    } else {
-      // Assume street name is at the beginning
-      const regexHouseNumberAtStart = /(\d+) (.*)/;
-      const matchHouseNumberAtStart = address.match(regexHouseNumberAtStart);
-
-      if (matchHouseNumberAtStart) {
-        // Construct the rearranged address with house number at the end
-        rearrangedAddress = `${matchHouseNumberAtStart[2]}, ${matchHouseNumberAtStart[1]}`;
-      }
-    }
-  }
-
-  // Condition 3: ZONE
-  else if (address.includes("ZONE")) {
-    const regex = /ZONE (\D+) (\S+)/;
-    const match = address.match(regex);
-    if (match) {
-      rearrangedAddress = `ZONE ${match[2]} ${match[1]}`;
-    }
-  }
-
-  // Condition 4: PHASE
-  else if (address.includes("PHASE")) {
-    const regex = /PHASE (\d+) (.+)/;
-    const match = address.match(regex);
-    if (match) {
-      rearrangedAddress = `PHASE ${match[1]} ${match[2]}`;
-    }
-  }
-
-  // Condition 5: BARANGAY or BRGY
-  else if (address.includes("BARANGAY")) {
-    const regexBarangayNumber = /BARANGAY (\d+) (.+)/;
-    const matchBarangayNumber = address.match(regexBarangayNumber);
-    if (matchBarangayNumber) {
-      rearrangedAddress = `${matchBarangayNumber[1]} ${matchBarangayNumber[2]} BARANGAY`;
-    } else {
-      const regexBarangay = /BARANGAY (\D+) (\S+)/;
-      const matchBarangay = address.match(regexBarangay);
-      if (matchBarangay) {
-        rearrangedAddress =`BARANGAY ${matchBarangay[2]} ${matchBarangay[1]}`;
-      }
-    }
-  }
-
-  console.log("Original Address:", address);
-  console.log("Rearranged Address:", rearrangedAddress);
-
-  return rearrangedAddress;
-};
-
-// Example usage:
-const originalAddress =
-  "STREET, CAGAYAN DE ORO CITY, MISAMIS ORIENTAL, PHILIPPINES 654";
-const rearranged = rearrangeAddress(originalAddress);
-
-console.log(rearranged);
-
 
 export default function CameraScanCOR() {
   const [cameraMode, setCameraMode] = useState(CameraType.back);
@@ -213,6 +128,89 @@ export default function CameraScanCOR() {
     setShowPicture(false);
   };
 
+
+  const rearrangeAddress = (addressArray) => {
+    let newAddressArray = [];
+
+    if (addressArray.includes("PUROK") && addressArray.includes("PHASE")) {
+      if (addressArray.includes("PUROK") && addressArray.includes("PHASE")) {
+        const purokIndex = addressArray.indexOf("PUROK");
+        const phaseIndex = addressArray.indexOf("PHASE");
+
+        newAddressArray = [
+          ...addressArray.slice(0, purokIndex + 1),
+          addressArray[addressArray.length - 2],
+          ...addressArray.slice(purokIndex + 1, phaseIndex),
+          addressArray[phaseIndex],
+          addressArray[addressArray.length - 1],
+          ...addressArray.slice(phaseIndex + 1, -2),
+        ];
+      }
+    } else if (
+      addressArray.includes("STREET") &&
+      addressArray.includes("BARANGAY")
+    ) {
+      const streetIndex = addressArray.indexOf("STREET");
+      const barangayIndex = addressArray.indexOf("BARANGAY");
+
+      newAddressArray = [
+        addressArray[addressArray.length - 2],
+        ...addressArray.slice(0, streetIndex),
+        ...addressArray.slice(streetIndex, barangayIndex + 1),
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(barangayIndex + 1, -2),
+      ];
+    } else if (addressArray.includes("STREET")) {
+      const streetIndex = addressArray.indexOf("STREET");
+
+      newAddressArray = [
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(0, streetIndex),
+        ...addressArray.slice(streetIndex, -1),
+      ];
+    } else if (addressArray.includes("PUROK")) {
+      const purokIndex = addressArray.indexOf("PUROK");
+
+      newAddressArray = [
+        ...addressArray.slice(0, purokIndex + 1),
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(purokIndex + 1, -1),
+      ];
+    } else if (addressArray.includes("ZONE")) {
+      const zoneIndex = addressArray.indexOf("ZONE");
+
+      newAddressArray = [
+        ...addressArray.slice(0, zoneIndex + 1),
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(zoneIndex + 1, -1),
+      ];
+    } else if (addressArray.includes("PHASE")) {
+      const phaseIndex = addressArray.indexOf("PHASE");
+
+      newAddressArray = [
+        ...addressArray.slice(0, phaseIndex + 1),
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(phaseIndex + 1, -1),
+      ];
+    } else if (addressArray.includes("BARANGAY")) {
+      const barangayIndex = addressArray.indexOf("BARANGAY");
+
+      newAddressArray = [
+        ...addressArray.slice(0, barangayIndex + 1),
+        addressArray[addressArray.length - 1],
+        ...addressArray.slice(barangayIndex + 1, -1),
+      ];
+    } else {
+      const lastElement = addressArray.pop();
+      newAddressArray = [lastElement, ...addressArray];
+    }
+
+    const resultString = newAddressArray.join(" ");
+    return resultString;
+  };
+
+
+
   const handleNextButton = async () => {
     try {
       setScanning(true);
@@ -268,19 +266,21 @@ export default function CameraScanCOR() {
           return;
         }
 
-        if (concatenatedFields.complete_address) {
-          concatenatedFields.complete_address = rearrangeAddress(
-            concatenatedFields.complete_address
-          );
-        }
 
-        setData((prevData) => ({
-          ...prevData,
+        const addressArray = concatenatedFields.complete_address
+          .split(/\s+|\.|,/)
+          .filter(Boolean);
+
+        const rearrangedAddress = rearrangeAddress(addressArray);
+        concatenatedFields.complete_address = rearrangedAddress;
+
+        // Use the rearranged address to update the state
+        setData({
+          ...data,
           ...concatenatedFields,
-          complete_address: rearrangeAddress(
-            concatenatedFields.complete_address
-          ),
-        }));
+          complete_address: rearrangedAddress,
+        });
+
 
         dispatch(
           setRecognizedText({

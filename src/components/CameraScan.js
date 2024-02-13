@@ -34,153 +34,82 @@ import { setdriverID } from "./camera/infoSliceCOR";
 import ImagePicker from 'react-native-image-crop-picker';
 import Scanning from "./Scanning";
 
-// const rearrangeAddress = (address) => {
-//   let rearrangedAddress = address;
+const rearrangeAddress = (complete_address) => {
+  let rearrangedAddress = complete_address;
 
-//   // Condition 1: PUROK
-//   if (address.includes("PUROK")) {
-//     const regex = /PUROK (\D+) (\S+)/;
-//     const match = address.match(regex);
-//     if (match) {
-//       rearrangedAddress = `PUROK ${match[2]} ${match[1]}`;
-//     }
-//   }
+  // Split the address into parts
+  const parts = complete_address.split(" ");
 
-//   // Condition 2: STREET
-//   else if (address.includes("STREET")) {
-//     const regex = /(.+?) STREET(?:, (.+))? (\d+)/;
-//     const match = address.match(regex);
-//     if (match) {
-//       const streetDetails = match[2] ? `, ${match[2]}` : "";
-//       rearrangedAddress = `${match[3]} ${match[1]} STREET${streetDetails}`;
-//     }
-//   }
+  // Check if the last part is a number, indicating a possible street number
+  const lastPart = parts[parts.length - 1];
+  const isNumber = /^\d+$/.test(lastPart);
 
-
-
-
-//   // Condition 3: ZONE
-//   else if (address.includes("ZONE")) {
-//     const regex = /ZONE (\d+) (.+)/;
-//     const match = address.match(regex);
-//     if (match) {
-//       rearrangedAddress = `ZONE ${match[1]} ${match[2]}`;
-//     }
-//   }
-
-//   // Condition 4: PHASE
-//   else if (address.includes("PHASE")) {
-//     const regex = /PHASE (\d+) (.+)/;
-//     const match = address.match(regex);
-//     if (match) {
-//       rearrangedAddress = `PHASE ${match[1]} ${match[2]}`;
-//     }
-//   }
-
-//   // Condition 5: BARANGAY or BRGY
-//   else if (address.includes("BARANGAY") || address.includes("BRGY")) {
-//     const regex = /(BARANGAY|BRGY) (\d*) (.+)/;
-//     const match = address.match(regex);
-//     if (match) {
-//       rearrangedAddress = `${match[1]} ${match[2]} ${match[3]}`;
-//     }
-//   }
-
-//   console.log("Original Address:", address);
-//   console.log("Rearranged Address:", rearrangedAddress);
-
-//   return rearrangedAddress;
-// };
-
-// const originalAddress =
-//   "PUROK HILLSIDE GUSA CAGAYAN DE ORO CITY MISAMIS ORIENTAL 4A";
-// const rearranged = rearrangeAddress(originalAddress);
-// console.log(rearranged);
-
-const rearrangeAddress = (address) => {
-  let rearrangedAddress = address;
+  // If the last part is a number, consider it as the street number
+  if (isNumber) {
+    parts.pop(); // Remove the last part (number)
+    const streetNumber = lastPart;
+    rearrangedAddress = `${streetNumber} ${parts.join(" ")}`;
+  }
 
   // Condition 1: PUROK
-  if (address.includes("PUROK")) {
+  if (complete_address.includes("PUROK")) {
     const regex = /PUROK (\D+) (\S+)/;
-    const match = address.match(regex);
+    const match = complete_address.match(regex);
     if (match) {
       rearrangedAddress = `PUROK ${match[2]} ${match[1]}`;
     }
   }
 
   // Condition 2: STREET
-  else if (address.includes("STREET")) {
-    // Check if the address contains a house number
-    const regexHouseNumber = /\d+/;
-    const hasHouseNumber = regexHouseNumber.test(address);
-
-    if (hasHouseNumber) {
-      const regexHouseNumberAtEnd = /(.*) (\d+)$/;
-      const matchHouseNumberAtEnd = address.match(regexHouseNumberAtEnd);
-
-      // Check if the address matches the expected format with house number at the end
-      if (matchHouseNumberAtEnd) {
-        // Construct the rearranged address with house number at the beginning
-        rearrangedAddress = `${matchHouseNumberAtEnd[2]} ${matchHouseNumberAtEnd[1]}`;
-      }
-    } else {
-      // Assume street name is at the beginning
-      const regexHouseNumberAtStart = /(\d+) (.*)/;
-      const matchHouseNumberAtStart = address.match(regexHouseNumberAtStart);
-
-      if (matchHouseNumberAtStart) {
-        // Construct the rearranged address with house number at the end
-        rearrangedAddress = `${matchHouseNumberAtStart[2]}, ${matchHouseNumberAtStart[1]}`;
-      }
+  else if (complete_address.includes("STREET")) {
+    const regex = /(.+?) STREET(?:, (.+))? (\d+)/;
+    const match = complete_address.match(regex);
+    if (match) {
+      const streetDetails = match[2] ? `, ${match[2]}` : "";
+      rearrangedAddress = `${match[3]} ${match[1]} STREET${streetDetails}`;
     }
   }
 
   // Condition 3: ZONE
-  else if (address.includes("ZONE")) {
-    const regex = /ZONE (\D+) (\S+)/;
-    const match = address.match(regex);
+  else if (complete_address.includes("ZONE")) {
+    const regex = /ZONE (\d+) (.+)/;
+    const match = complete_address.match(regex);
     if (match) {
-      rearrangedAddress = `ZONE ${match[2]} ${match[1]}`;
+      rearrangedAddress = `ZONE ${match[1]} ${match[2]}`;
     }
   }
 
   // Condition 4: PHASE
-  else if (address.includes("PHASE")) {
+  else if (complete_address.includes("PHASE")) {
     const regex = /PHASE (\d+) (.+)/;
-    const match = address.match(regex);
+    const match = complete_address.match(regex);
     if (match) {
       rearrangedAddress = `PHASE ${match[1]} ${match[2]}`;
     }
   }
 
   // Condition 5: BARANGAY or BRGY
-  else if (address.includes("BARANGAY")) {
-    const regexBarangayNumber = /BARANGAY (\d+) (.+)/;
-    const matchBarangayNumber = address.match(regexBarangayNumber);
-    if (matchBarangayNumber) {
-      rearrangedAddress = `${matchBarangayNumber[1]} ${matchBarangayNumber[2]} BARANGAY`;
-    } else {
-      const regexBarangay = /BARANGAY (\D+) (\S+)/;
-      const matchBarangay = address.match(regexBarangay);
-      if (matchBarangay) {
-        rearrangedAddress =`BARANGAY ${matchBarangay[2]} ${matchBarangay[1]}`;
-      }
+  else if (
+    complete_address.includes("BARANGAY") ||
+    complete_address.includes("BRGY")
+  ) {
+    const regex = /(BARANGAY|BRGY) (\d*) (.+)/;
+    const match = complete_address.match(regex);
+    if (match) {
+      rearrangedAddress = `${match[1]} ${match[2]} ${match[3]}`;
     }
   }
 
-  console.log("Original Address:", address);
+  console.log("Original Address:", complete_address);
   console.log("Rearranged Address:", rearrangedAddress);
 
   return rearrangedAddress;
 };
 
-// Example usage:
-const originalAddress =
-  "STREET, CAGAYAN DE ORO CITY, MISAMIS ORIENTAL, PHILIPPINES 654";
+const originalAddress = "MAIN ST QUEZON CITY METRO MANILA 123";
 const rearranged = rearrangeAddress(originalAddress);
-
 console.log(rearranged);
+
 
 
 export default function CameraScan() {

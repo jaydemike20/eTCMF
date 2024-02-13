@@ -42,8 +42,8 @@ function FirstScreen({ navigation }) {
   const [scanning, setScanning] = useState(false);
 
   const [credentials, setCredentials] = useState({
-    username: "jayde",
-    password: "2023@engracia",
+    username: "",
+    password: "",
   });
   // get the authSlice Online
   const internet = useSelector((state) => state.auth.Online)
