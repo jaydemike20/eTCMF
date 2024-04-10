@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { View, TouchableOpacity, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/Octicons";
-import { subYears, differenceInYears } from 'date-fns';
+import { subYears, differenceInYears } from "date-fns";
 
-function DatePick({ onDateChange, value, style }) {
+function DatePick({ onDateChange, value, style, disabled }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(value || new Date());
 
@@ -20,7 +20,10 @@ function DatePick({ onDateChange, value, style }) {
         onDateChange(date);
       } else {
         // Display an error message if the selected date is not valid
-        Alert.alert("Invalid Date", "Selected date must be at least 13 years ago");
+        Alert.alert(
+          "Invalid Date",
+          "Selected date must be at least 13 years ago"
+        );
       }
     }
   };
@@ -29,7 +32,10 @@ function DatePick({ onDateChange, value, style }) {
 
   return (
     <View style={style}>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+      <TouchableOpacity
+        disabled={disabled}
+        onPress={() => setShowDatePicker(true)}
+      >
         <Icon size={25} name="calendar"></Icon>
       </TouchableOpacity>
 
