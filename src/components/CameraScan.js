@@ -31,7 +31,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import corners from "./../../assets/corners.png";
 import axios from "../../plugins/axios";
 import { setdriverID } from "./camera/infoSliceCOR";
-import ImagePicker from 'react-native-image-crop-picker';
+import ImagePicker from "react-native-image-crop-picker";
 import Scanning from "./Scanning";
 
 const rearrangeAddress = (complete_address) => {
@@ -110,14 +110,12 @@ const originalAddress = "MAIN ST QUEZON CITY METRO MANILA 123";
 const rearranged = rearrangeAddress(originalAddress);
 console.log(rearranged);
 
-
-
 export default function CameraScan() {
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const [cameraRef, setCameraRef] = useState(null);
   const [showPicture, setShowPicture] = useState(false);
   const [cropMode, setCropMode] = useState(false);
-  const [capturedImage, setCapturedImage] = useState('');
+  const [capturedImage, setCapturedImage] = useState("");
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
   const [cropWidth, setCropWidth] = useState(0);
@@ -194,29 +192,25 @@ export default function CameraScan() {
   const takePicture = async () => {
     if (cameraRef) {
       const photo = await cameraRef.takePictureAsync();
-  
+
       // Check if photo has a valid path property
       if (photo && photo.uri) {
         ImagePicker.openCropper({
           path: photo.uri, // Use the path property
           includeBase64: true,
         })
-          .then(image => {
+          .then((image) => {
             const base64Image = `data:${image.mime};base64,${image.data}`;
             setCapturedImage(base64Image);
 
             setShowPicture(true);
           })
-          .catch(error => {
-            console.log('Error:', error);
+          .catch((error) => {
+            console.log("Error:", error);
           });
       }
     }
   };
-  
-
-
-
 
   const cancelPicture = () => {
     setCapturedImage("");
@@ -322,7 +316,7 @@ export default function CameraScan() {
   //         dispatch(
   //           setGetFinalDriver({
   //             ...driverExists,
-  //             license_number: driverExists.license_number,  
+  //             license_number: driverExists.license_number,
   //             first_name: driverExists.first_name,
   //             middle_initial: driverExists.middle_initial,
   //             last_name: driverExists.last_name,
@@ -398,10 +392,9 @@ export default function CameraScan() {
   //   }
   // };
 
-
   const handleNextButton = async () => {
     try {
-      setScanning(true)
+      setScanning(true);
       if (!capturedImage) {
         Alert.alert("Please take a picture first.");
         return;
@@ -453,10 +446,39 @@ export default function CameraScan() {
             for (const value of extractedData[fieldName]?.values || []) {
               concatenatedValue += value.content + " ";
             }
-            concatenatedFields[fieldName] = concatenatedValue.trim();
+
+            if (fieldName === "last_name_first_name_middle_name") {
+              // Split the name into parts
+              const nameParts = concatenatedValue.trim().split(" ");
+              // Extract last name
+              const lastName = nameParts.shift(); // Remove and get the first element
+              // Extract middle name
+              const middleName = nameParts.pop(); // Remove and get the last element
+              // Join remaining parts as first name
+              const firstName = nameParts.join(" ");
+              // Construct rearranged name
+              const rearrangedName = `${lastName} ${firstName} ${middleName}`;
+              concatenatedFields[fieldName] = rearrangedName;
+
+              // Update state with the extracted names
+              setData((prevData) => ({
+                ...prevData,
+                first_name: firstName,
+                last_name: lastName,
+                middle_name: middleName,
+              }));
+
+              // Log the extracted name components
+              console.log("Last Name:", lastName);
+              console.log("First Name:", firstName);
+              console.log("Middle Name:", middleName);
+            } else {
+              concatenatedFields[fieldName] = concatenatedValue.trim();
+            }
           }
         }
 
+        // If address is available, rearrange it
         if (concatenatedFields.address) {
           concatenatedFields.address = rearrangeAddress(
             concatenatedFields.address
@@ -470,7 +492,7 @@ export default function CameraScan() {
 
         Alert.alert("Rearranged Address", concatenatedFields.address);
 
-
+        // Dispatching action with recognized text
         dispatch(
           setRecognizedText({
             type: concatenatedFields.type,
@@ -496,21 +518,21 @@ export default function CameraScan() {
           dispatch(setDriverRegisterd());
           dispatch(setDriverID(driverId));
 
-          // for editing soon
+          // Set driver data for editing
           dispatch(
             setGetFinalDriver({
               ...driverExists,
-              license_number: driverExists.license_number,  
-              first_name: driverExists.first_name,
-              middle_initial: driverExists.middle_initial,
-              last_name: driverExists.last_name,
+              license_number: driverExists.license_number,
+              first_name: concatenatedFields.first_name,
+              middle_name: concatenatedFields.middle_name,
+              last_name: concatenatedFields.last_name,
               address: driverExists.address,
               birthdate: driverExists.birthdate,
               nationality: driverExists.nationality,
               classification: classificationString,
             })
           );
-          // vehicle slice
+          // Update vehicle slice with driver ID
           dispatch(setdriverID(driverId));
           // if there is changes
 
@@ -534,12 +556,12 @@ export default function CameraScan() {
             restrictions: "",
           });
           navigation.navigate("IntroOCR");
-          setScanning(false)
-
+          setScanning(false);
         } else {
-          setScanning(false)
+          setScanning(false);
           console.log(`Driver not found: ${concatenatedFields.license_no}`);
           alert(`New Driver: ${concatenatedFields.license_no}`);
+
           dispatch(setFinalDriver());
 
           // clear setData
@@ -565,17 +587,14 @@ export default function CameraScan() {
         }
       } else {
         Alert.alert("Text extraction failed. Please try again later.");
-        setScanning(false)
-
+        setScanning(false);
       }
     } catch (error) {
       console.log("Error extracting text:", error);
       Alert.alert("Error extracting text. Please try again later.");
-      setScanning(false)
-
+      setScanning(false);
     }
   };
-
 
   // useEffect(() => {
   //   console.log("Updated Data:", data);
@@ -597,38 +616,36 @@ export default function CameraScan() {
 
   // // oki nani
   const pickImage = async () => {
-
     ImagePicker.openPicker({
       cropping: true,
       includeBase64: true,
     })
-      .then(image => {
+      .then((image) => {
         const base64Image = `data:${image.mime};base64,${image.data}`;
 
         setCapturedImage(base64Image);
         setShowPicture(true);
-
       })
-      .catch(error => {
-        console.log('Error:', error);
+      .catch((error) => {
+        console.log("Error:", error);
       });
   };
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       {showPicture ? (
-        <View 
-        style={{
-          backgroundColor: "black",
-          position: "absolute",
-          zIndex: 4,
-          width: "100%",
-          height: "100%",
-        }}        
+        <View
+          style={{
+            backgroundColor: "black",
+            position: "absolute",
+            zIndex: 4,
+            width: "100%",
+            height: "100%",
+          }}
         >
           {capturedImage ? (
             <Image style={styles.picture} source={{ uri: capturedImage }} />
-          ) : (null)}
+          ) : null}
 
           <TouchableOpacity style={styles.nextBtn} onPress={handleNextButton}>
             <Text style={styles.nextText}>Next</Text>
@@ -638,58 +655,61 @@ export default function CameraScan() {
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
         </View>
-      ) : (null)}
+      ) : null}
 
       {scanning ? <Scanning text="Scanning Driver's License"></Scanning> : null}
 
-          <View style={{ height: "100%", width: "100%", backgroundColor: "transparent"}}>
-          <Image style={styles.corners} source={corners}></Image>
-          <Camera
-            flashMode={flash}
-            style={styles.camera}
-            ref={(ref) => {
-              setCameraRef(ref);
-            }}
-            ratio="16:9" // Set the aspect ratio to 1:1
-          ></Camera>
-          <View style={styles.controlsContainer}>
-            <View style={styles.controlText}>
-              <Text
-                style={{ color: "white", fontSize: 25, fontWeight: "bold" }}
+      <View
+        style={{
+          height: "100%",
+          width: "100%",
+          backgroundColor: "transparent",
+        }}
+      >
+        <Image style={styles.corners} source={corners}></Image>
+        <Camera
+          flashMode={flash}
+          style={styles.camera}
+          ref={(ref) => {
+            setCameraRef(ref);
+          }}
+          ratio="16:9" // Set the aspect ratio to 1:1
+        ></Camera>
+        <View style={styles.controlsContainer}>
+          <View style={styles.controlText}>
+            <Text style={{ color: "white", fontSize: 25, fontWeight: "bold" }}>
+              Photo of Driver’s License
+            </Text>
+            <Text style={{ color: "white" }}>
+              Please place the front of the Driver’s License
+            </Text>
+            <Text style={{ color: "white" }}>in the frame</Text>
+          </View>
+
+          {/* oki nani */}
+          <View style={styles.control}>
+            {/* outdated system */}
+            <TouchableOpacity style={styles.otherbtn} onPress={pickImage}>
+              <Icon name="image" size={28} color="white" style={{}} />
+            </TouchableOpacity>
+
+            <View>
+              <TouchableOpacity
+                style={styles.takePictureBtn}
+                onPress={takePicture}
               >
-                Photo of Driver’s License
-              </Text>
-              <Text style={{ color: "white" }}>
-                Please place the front of the Driver’s License
-              </Text>
-              <Text style={{ color: "white" }}>in the frame</Text>
+                <ScanOutlined
+                  style={{
+                    color: "white",
+                    fontSize: 50,
+                  }}
+                  name="line-scan"
+                ></ScanOutlined>
+              </TouchableOpacity>
             </View>
 
-            {/* oki nani */}
-            <View style={styles.control}>
-              {/* outdated system */}
-              <TouchableOpacity style={styles.otherbtn} onPress={pickImage}>
-                <Icon name="image" size={28} color="white" style={{}} />
-              </TouchableOpacity>
-
-              <View>
-                <TouchableOpacity
-                  style={styles.takePictureBtn}
-                  onPress={takePicture}
-                >
-                  <ScanOutlined
-                    style={{
-                      color: "white",
-                      fontSize: 50,
-                    }}
-                    name="line-scan"
-                  ></ScanOutlined>
-                </TouchableOpacity>
-              </View>
-
-
-{/* no flash */}
-              {/* <TouchableOpacity style={styles.otherbtn} onPress={toggleFlash}>
+            {/* no flash */}
+            {/* <TouchableOpacity style={styles.otherbtn} onPress={toggleFlash}>
                 <Feather
                   name={
                     flash === Camera.Constants.FlashMode.off ? "zap-off" : "zap"
@@ -698,10 +718,9 @@ export default function CameraScan() {
                   color="white"
                 />
               </TouchableOpacity> */}
-            </View>
           </View>
-        </View>          
- 
+        </View>
+      </View>
     </View>
   );
 }
@@ -831,7 +850,7 @@ const styles = StyleSheet.create({
     zIndex: 4,
     width: "100%",
     height: "100%",
-    ratio: "16:9" // Set the aspect ratio to 1:1
+    ratio: "16:9", // Set the aspect ratio to 1:1
   },
   manipulator: {
     width: "100%",
