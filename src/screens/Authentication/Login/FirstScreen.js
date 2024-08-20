@@ -36,6 +36,7 @@ function FirstScreen({ navigation }) {
   const [fontsLoaded] = useFonts({
     "Zen Dots Regular": require("./../../../../assets/fonts/ZenDots-Regular.ttf"),
   });
+
   const [showPassword, setShowPassword] = useState(true);
   const [textInputFocused, setTextInputFocused] = useState(false);
   const [animationValue] = useState(new Animated.Value(1));
