@@ -20,6 +20,7 @@ function ConstInput({
   minHeight, // New prop for minimum height
   multiline,
   maxLength
+  
 }) {
   const [fontsLoaded] = useFonts({
     "Roboto-Light": require("./../../assets/fonts/Roboto-Light.ttf"),

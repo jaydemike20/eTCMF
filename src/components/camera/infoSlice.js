@@ -1,17 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
 function extractNameInfo(fullName) {
   const nameArray = fullName.split(", ");
 
   // Check if there is a comma and space in the full name
   if (nameArray.length === 1) {
     // If no comma and space, assume the full name contains only first and last name
-    const [firstName, lastName] = fullName.split(" ");
+    const [firstName, lastName, middleName] = fullName.split(" ");
     return {
       firstName,
       lastName,
-      middleName: "", // Assuming no middle name is provided
+      middleName, // Assuming no middle name is provided
     };
   }
 
@@ -36,8 +35,8 @@ function extractNameInfo(fullName) {
 export const infoSlice = createSlice({
   name: "infoText",
   initialState: {
-    isDriverRegisterd: false,
-    id: '',
+    isDriverRegistered: false,
+    id: "",
     text: "",
     extractedInfo: {
       type: "",
@@ -57,15 +56,15 @@ export const infoSlice = createSlice({
       restrictions: "",
     },
     finalDriver: {
-      license_number: '',
-      first_name: '',
-      middle_initial: '',
-      last_name: '',
-      address: '',
-      birthdate: '',
-      nationality: '',
-      classification: '',
-    }
+      license_number: "",
+      first_name: "",
+      middle_initial: "",
+      last_name: "",
+      address: "",
+      birthdate: "",
+      nationality: "",
+      classification: "",
+    },
   },
   reducers: {
     setRecognizedText: (state, action) => {
@@ -76,23 +75,23 @@ export const infoSlice = createSlice({
     },
     setFinalDriver: (state) => {
       state.finalDriver.license_number = state.extractedInfo.licenseNumber;
-    
+
       const fullname = state.extractedInfo.name;
-    
+
       // Use the extractNameInfo function to get name information
       const nameInfo = extractNameInfo(fullname);
-    
+
       // Assign the extracted name information to the finalDriver state
       state.finalDriver.last_name = nameInfo.lastName;
       state.finalDriver.first_name = nameInfo.firstName;
       state.finalDriver.middle_initial = nameInfo.middleName;
-    
+
       state.finalDriver.address = state.extractedInfo.address;
       state.finalDriver.birthdate = state.extractedInfo.dateOfBirth;
       state.finalDriver.nationality = state.extractedInfo.nationality;
       state.finalDriver.classification = state.extractedInfo.classification;
     },
-    
+
     setEmptyRecognizedText: (state) => {
       state.extractedInfo = {
         type: "",
@@ -114,15 +113,15 @@ export const infoSlice = createSlice({
     },
     setEmptyFinalDriver: (state) => {
       state.finalDriver = {
-        license_number: '',
-        first_name: '',
-        middle_initial: '',
-        last_name: '',
-        address: '',
-        birthdate: '',
-        nationality: '',
-        classification: '',
-      }
+        license_number: "",
+        first_name: "",
+        middle_initial: "",
+        last_name: "",
+        address: "",
+        birthdate: "",
+        nationality: "",
+        classification: "",
+      };
       state.extractedInfo = {
         type: "",
         name: "",
@@ -141,57 +140,57 @@ export const infoSlice = createSlice({
         restrictions: "",
       };
 
-      state.isDriverRegisterd = false
-      state.id = ''
-      state.text = ''
+      state.isDriverRegistered = false;
+      state.id = "";
+      state.text = "";
     },
-    setDriverRegisterd: (state) => {
-      state.isDriverRegisterd = true
+    setDriverRegistered: (state) => {
+      state.isDriverRegistered = true;
     },
-    setDefaultDriverRegisterd: (state) => {
-      state.isDriverRegisterd = false
+    setDefaultDriverRegistered: (state) => {
+      state.isDriverRegistered = false;
     },
     setDriverID: (state, action) => {
-      state.id = action.payload
+      state.id = action.payload;
     },
     // SET MANUALLY INFO
     setDriverClassification: (state, action) => {
-      state.finalDriver.classification = action.payload
+      state.finalDriver.classification = action.payload;
     },
     setLicenseNumber: (state, action) => {
-      state.finalDriver.license_number = action.payload
+      state.finalDriver.license_number = action.payload;
     },
     setFirstName: (state, action) => {
-      state.finalDriver.first_name = action.payload
+      state.finalDriver.first_name = action.payload;
     },
     setMiddleInitial: (state, action) => {
-      state.finalDriver.middle_initial = action.payload
+      state.finalDriver.middle_initial = action.payload;
     },
     setLastName: (state, action) => {
-      state.finalDriver.last_name = action.payload
+      state.finalDriver.last_name = action.payload;
     },
     setAddress: (state, action) => {
-      state.finalDriver.address = action.payload
+      state.finalDriver.address = action.payload;
     },
     setBirthDate: (state, action) => {
-      state.finalDriver.birthdate = action.payload
+      state.finalDriver.birthdate = action.payload;
     },
     setNationality: (state, action) => {
-      state.finalDriver.nationality = action.payload
+      state.finalDriver.nationality = action.payload;
     },
-  
+
     setGetFinalDriver: (state, action) => {
-      state.finalDriver = action.payload
-    }
+      state.finalDriver = action.payload;
+    },
   },
 });
 
-export const { 
-  setRecognizedText, 
-  setFinalDriver, 
-  setEmptyRecognizedText, 
-  setEmptyFinalDriver, 
-  setDriverRegisterd, 
+export const {
+  setRecognizedText,
+  setFinalDriver,
+  setEmptyRecognizedText,
+  setEmptyFinalDriver,
+  setDriverRegistered,
   setDriverID,
   setDriverClassification,
   setLicenseNumber,
@@ -202,7 +201,7 @@ export const {
   setBirthDate,
   setNationality,
   setGetFinalDriver,
-  setDefaultDriverRegisterd
+  setDefaultDriverRegistered,
 } = infoSlice.actions;
 
 export default infoSlice.reducer;
